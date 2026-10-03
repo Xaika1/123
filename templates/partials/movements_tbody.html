@@ -1,0 +1,29 @@
+{% for m in movements %}
+<tr>
+    <td class="small text-nowrap">{{ m.created_at | truncate(16, true, '') }}</td>
+    <td class="small">
+        {% if m.document_id %}
+        <a href="#/documents/{{ m.document_id }}" class="text-decoration-none">
+            {{ m.doc_number or ('№' ~ m.document_id) }}
+        </a>
+        {% else %}—{% endif %}
+    </td>
+    <td>
+        <a href="#/products/{{ m.product_id }}" class="text-decoration-none">{{ m.product_name }}</a>
+        <div class="small text-body-secondary">{{ m.article }}</div>
+    </td>
+    <td>
+        <span class="badge text-bg-{{ 'success' if m.movement_type == 'in' else ('warning' if m.movement_type == 'out' else 'danger') }}">
+            {{ {'in': 'Приход', 'out': 'Расход', 'write_off': 'Списание'}[m.movement_type] or m.movement_type }}
+        </span>
+    </td>
+    <td class="text-end fw-semibold">
+        {% if m.movement_type == 'in' %}+{% else %}-{% endif %}{{ m.quantity }} {{ m.unit_short or '' }}
+    </td>
+    <td class="text-end">{{ m.price_at_moment | round(2) }}</td>
+    <td class="text-end">{{ m.sum | round(2) }}</td>
+    <td class="small text-body-secondary">{{ m.comment or '' }}</td>
+</tr>
+{% else %}
+<tr><td colspan="8" class="text-center text-body-secondary py-4">Движений по заданным фильтрам нет</td></tr>
+{% endfor %}

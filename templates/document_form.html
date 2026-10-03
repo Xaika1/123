@@ -1,0 +1,98 @@
+{% extends "base.html" %}
+{% block title %}Новый документ{% endblock %}
+
+{% block content %}
+<div class="d-flex align-items-center justify-content-between mb-3">
+    <h4 class="mb-0">
+        <a class="text-body-secondary text-decoration-none me-2" href="#/documents"><i class="bi bi-arrow-left"></i></a>
+        Оформление документа
+    </h4>
+</div>
+
+<form id="documentForm" class="card shadow-sm">
+    <div class="card-body">
+        <div class="row g-3 mb-3">
+            <div class="col-md-3">
+                <label class="form-label" for="docType">Тип документа *</label>
+                <select class="form-select" id="docType" name="doc_type" required>
+                    <option value="incoming">Приходная накладная</option>
+                    <option value="outgoing">Расходная накладная</option>
+                    <option value="write_off">Акт списания</option>
+                    <option value="inventory">Акт инвентаризации</option>
+                </select>
+            </div>
+            <div class="col-md-3">
+                <label class="form-label" for="docDate">Дата документа *</label>
+                <input type="date" class="form-control" id="docDate" name="doc_date" required value="{{ today }}">
+            </div>
+            <div class="col-md-3">
+                <label class="form-label" for="counterparty">Контрагент</label>
+                <select class="form-select" id="counterparty" name="counterparty_id">
+                    <option value="">— не выбран —</option>
+                    {% for c in counterparties %}
+                    <option value="{{ c.id }}" data-type="{{ c.type }}">{{ c.name }}
+                        ({{ 'поставщик' if c.type == 'supplier' else 'покупатель' }})
+                    </option>
+                    {% endfor %}
+                </select>
+                <div class="form-text" id="counterpartyHint"></div>
+            </div>
+            <div class="col-md-3">
+                <label class="form-label" for="responsible">Ответственный</label>
+                <input type="text" class="form-control" id="responsible" name="responsible"
+                       value="{{ operator }}" placeholder="ФИО оператора">
+            </div>
+            <div class="col-12">
+                <label class="form-label" for="docComment">Комментарий</label>
+                <textarea class="form-control" id="docComment" name="comment" rows="2"></textarea>
+            </div>
+        </div>
+
+        <div id="itemsSection">
+            <div class="d-flex align-items-center justify-content-between mb-2">
+                <h6 class="mb-0">Позиции документа</h6>
+                <button type="button" class="btn btn-sm btn-outline-primary" id="addItem">
+                    <i class="bi bi-plus-lg me-1"></i>Добавить позицию
+                </button>
+            </div>
+
+            <div class="table-responsive">
+                <table class="table align-middle mb-0">
+                    <thead>
+                        <tr>
+                            <th>Товар</th>
+                            <th class="text-end text-nowrap">Количество</th>
+                            <th class="text-end text-nowrap">Цена, руб.</th>
+                            <th class="text-end text-nowrap">Сумма</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody id="itemsBody"></tbody>
+                    <tfoot>
+                        <tr>
+                            <th colspan="3" class="text-end">Итого:</th>
+                            <th class="text-end" id="itemsTotal">0.00</th>
+                            <th></th>
+                        </tr>
+                    </tfoot>
+                </table>
+            </div>
+        </div>
+
+        <div class="alert alert-secondary d-none mt-3" id="inventoryNote">
+            <i class="bi bi-info-circle me-1"></i>
+            Акт инвентаризации фиксирует текущие остатки склада: позиции не добавляются вручную,
+            документ печатается по данным на момент формирования.
+        </div>
+
+        <div class="alert alert-danger d-none mt-3" id="formError"></div>
+    </div>
+
+    <div class="card-footer bg-transparent d-flex justify-content-end gap-2">
+        <a class="btn btn-outline-secondary" href="#/documents">Отмена</a>
+        <button type="submit" class="btn btn-primary">
+            <i class="bi bi-check-lg me-1"></i>Провести документ
+        </button>
+    </div>
+</form>
+{% endblock %}

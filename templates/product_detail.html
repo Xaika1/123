@@ -1,0 +1,120 @@
+{% extends "base.html" %}
+{% block title %}{{ product.name }}{% endblock %}
+
+{% block content %}
+<div class="d-flex align-items-center justify-content-between mb-3 flex-wrap gap-2">
+    <h4 class="mb-0">
+        <a class="text-body-secondary text-decoration-none me-2" href="#/products"><i class="bi bi-arrow-left"></i></a>
+        {{ product.name }}
+        {% if product.is_low %}<span class="badge text-bg-danger ms-2">ниже минимума</span>{% endif %}
+        {% if not product.is_active %}<span class="badge text-bg-secondary ms-2">архив</span>{% endif %}
+    </h4>
+    <div class="btn-group">
+        <a class="btn btn-outline-primary" href="#/products/{{ product.id }}/edit"><i class="bi bi-pencil me-1"></i>Редактировать</a>
+        <button type="button" class="btn btn-outline-secondary" id="archiveBtn" data-archived="{{ product.is_active }}">
+            <i class="bi {{ 'bi-box-arrow-in-down' if product.is_active else 'bi-arrow-counterclockwise' }} me-1"></i>
+            {{ 'В архив' if product.is_active else 'Вернуть' }}
+        </button>
+        <button type="button" class="btn btn-outline-danger" id="deleteBtn"><i class="bi bi-trash me-1"></i>Удалить</button>
+    </div>
+</div>
+
+<div class="row g-3">
+    <div class="col-lg-5">
+        <div class="card shadow-sm">
+            <div class="card-header bg-transparent">Карточка товара</div>
+            <div class="card-body">
+                {% if product.image_url %}
+                <div class="text-center mb-3">
+                    <img src="{{ product.image_url }}" alt="" class="img-fluid rounded border d-block mx-auto">
+                </div>
+                {% endif %}
+
+                <dl class="row mb-0">
+                    <dt class="col-5 text-body-secondary">Артикул</dt>
+                    <dd class="col-7">{{ product.article }}</dd>
+
+                    <dt class="col-5 text-body-secondary">Категория</dt>
+                    <dd class="col-7">{{ product.category_name or '—' }}</dd>
+
+                    <dt class="col-5 text-body-secondary">Единица изм.</dt>
+                    <dd class="col-7">{{ product.unit_name or '—' }}{% if product.unit_short %} ({{ product.unit_short }}){% endif %}</dd>
+
+                    <dt class="col-5 text-body-secondary">Текущий остаток</dt>
+                    <dd class="col-7 fw-bold {% if product.is_low %}text-danger{% endif %}">
+                        {{ product.current_stock }} {{ product.unit_short or '' }}
+                    </dd>
+
+                    <dt class="col-5 text-body-secondary">Минимальный остаток</dt>
+                    <dd class="col-7">{{ product.min_stock }}</dd>
+
+                    <dt class="col-5 text-body-secondary">Цена</dt>
+                    <dd class="col-7">{{ product.price | round(2) }} руб.</dd>
+
+                    <dt class="col-5 text-body-secondary">Место хранения</dt>
+                    <dd class="col-7">{{ product.location or '—' }}</dd>
+
+                    <dt class="col-5 text-body-secondary">Создан</dt>
+                    <dd class="col-7 small">{{ product.created_at }}</dd>
+
+                    <dt class="col-5 text-body-secondary">Обновлён</dt>
+                    <dd class="col-7 small">{{ product.updated_at }}</dd>
+                </dl>
+
+                {% if product.description %}
+                <hr>
+                <div class="small text-body-secondary">Описание</div>
+                <div>{{ product.description }}</div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-7">
+        <div class="card shadow-sm">
+            <div class="card-header bg-transparent d-flex justify-content-between align-items-center">
+                <span><i class="bi bi-clock-history me-2"></i>История движений</span>
+                <a class="small" href="#/movements">весь журнал</a>
+            </div>
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead>
+                        <tr>
+                            <th>Дата</th>
+                            <th>Документ</th>
+                            <th>Операция</th>
+                            <th class="text-end">Кол-во</th>
+                            <th class="text-end">Цена</th>
+                            <th>Контрагент</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    {% for m in movements %}
+                        <tr>
+                            <td class="small">{{ m.created_at | truncate(16, true, '') }}</td>
+                            <td>
+                                {% if m.document_id %}
+                                <a href="#/documents/{{ m.document_id }}" class="text-decoration-none">{{ m.doc_number or ('№' ~ m.document_id) }}</a>
+                                {% else %}—{% endif %}
+                            </td>
+                            <td>
+                                <span class="badge text-bg-{{ 'success' if m.movement_type == 'in' else ('warning' if m.movement_type == 'out' else 'danger') }}">
+                                    {{ {'in': 'Приход', 'out': 'Расход', 'write_off': 'Списание'}[m.movement_type] or m.movement_type }}
+                                </span>
+                            </td>
+                            <td class="text-end fw-semibold">
+                                {% if m.movement_type == 'in' %}+{% else %}-{% endif %}{{ m.quantity }}
+                            </td>
+                            <td class="text-end">{{ m.price_at_moment | round(2) }}</td>
+                            <td class="small text-body-secondary">{{ m.counterparty_name or '—' }}</td>
+                        </tr>
+                    {% else %}
+                        <tr><td colspan="6" class="text-center text-body-secondary py-4">Движений по товару ещё нет</td></tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

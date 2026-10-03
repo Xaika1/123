@@ -1,0 +1,96 @@
+{% extends "base.html" %}
+{% block title %}Настройки{% endblock %}
+
+{% block content %}
+<div class="d-flex align-items-center justify-content-between mb-3">
+    <h4 class="mb-0"><i class="bi bi-gear me-2"></i>Настройки</h4>
+</div>
+
+<div class="row g-3">
+    <div class="col-lg-6">
+        <div class="card shadow-sm">
+            <div class="card-header bg-transparent">
+                <i class="bi bi-person-badge me-2"></i>Оператор и безопасность
+            </div>
+            <div class="card-body">
+                <p class="small text-body-secondary">
+                    Оператор указывается в печатных документах. PIN-код хранится в зашифрованном виде
+                    через <code>electron.safeStorage</code> и запрашивается при формировании PDF.
+                </p>
+
+                <form id="secureForm">
+                    <div class="mb-3">
+                        <label class="form-label" for="operatorInput">Имя оператора</label>
+                        <input class="form-control" id="operatorInput" maxlength="100"
+                               placeholder="напр. Кораблёв А.П." value="{{ secure.operator or '' }}">
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label" for="pinNewInput">
+                            PIN-код
+                            <span class="badge text-bg-{{ 'success' if secure.hasPin else 'secondary' }} ms-1">
+                                {{ 'установлен' if secure.hasPin else 'не задан' }}
+                            </span>
+                        </label>
+                        <input class="form-control" id="pinNewInput" type="password" inputmode="numeric"
+                               maxlength="12" autocomplete="new-password" placeholder="4–12 символов">
+                        <div class="form-text">Оставьте пустым, чтобы не менять. Чтобы удалить — нажмите «Снять PIN».</div>
+                    </div>
+
+                    <div class="d-flex gap-2">
+                        <button class="btn btn-primary" type="submit">
+                            <i class="bi bi-check-lg me-1"></i>Сохранить
+                        </button>
+                        <button class="btn btn-outline-danger" type="button" id="clearPinBtn">
+                            <i class="bi bi-shield-x me-1"></i>Снять PIN
+                        </button>
+                    </div>
+                </form>
+
+                <hr>
+                <div class="d-flex flex-wrap gap-2">
+                    <button class="btn btn-outline-secondary btn-sm" id="notifyTestBtn">
+                        <i class="bi bi-bell me-1"></i>Проверить уведомления
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-6">
+        <div class="card shadow-sm">
+            <div class="card-header bg-transparent">
+                <i class="bi bi-hdd me-2"></i>Хранилище данных
+            </div>
+            <div class="card-body">
+                <dl class="row mb-0">
+                    <dt class="col-5 text-body-secondary">Папка данных</dt>
+                    <dd class="col-7 text-break small">{{ info.userData }}</dd>
+
+                    <dt class="col-5 text-body-secondary">База данных</dt>
+                    <dd class="col-7 text-break small">{{ info.dbPath }}</dd>
+
+                    <dt class="col-5 text-body-secondary">Версия приложения</dt>
+                    <dd class="col-7 small">{{ info.version }}</dd>
+
+                    <dt class="col-5 text-body-secondary">Платформа</dt>
+                    <dd class="col-7 small">{{ info.platform }}</dd>
+                </dl>
+            </div>
+        </div>
+
+        <div class="card shadow-sm mt-3">
+            <div class="card-header bg-transparent">
+                <i class="bi bi-shield-check me-2"></i>Безопасность Electron
+            </div>
+            <ul class="list-group list-group-flush small">
+                <li class="list-group-item"><code>contextIsolation: true</code> — изоляция контекста рендерера</li>
+                <li class="list-group-item"><code>nodeIntegration: false</code> — без Node.js в рендерере</li>
+                <li class="list-group-item"><code>preload.js</code> + <code>contextBridge</code> — мост <code>window.api</code></li>
+                <li class="list-group-item"><code>safeStorage</code> — шифрование PIN и токенов</li>
+                <li class="list-group-item">Файловая система и SQLite доступны только в Main-процессе</li>
+            </ul>
+        </div>
+    </div>
+</div>
+{% endblock %}

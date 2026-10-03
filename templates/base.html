@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="ru" data-bs-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <title>{% block title %}Складской учёт{% endblock %}</title>
+</head>
+<body>
+    <nav class="navbar navbar-expand bg-body-tertiary border-bottom sticky-top px-3">
+        <a class="navbar-brand fw-bold d-flex align-items-center gap-2 me-4" href="#/">
+            <span class="d-inline-flex align-items-center justify-content-center bg-primary text-white rounded-3 p-2">
+                <i class="bi bi-box-seam"></i>
+            </span>
+            <span>Складской учёт</span>
+        </a>
+
+        <ul class="navbar-nav me-auto">
+            <li class="nav-item"><a class="nav-link" data-nav="home" href="#/"><i class="bi bi-speedometer2 me-1"></i>Обзор</a></li>
+            <li class="nav-item"><a class="nav-link" data-nav="products" href="#/products"><i class="bi bi-box-seam me-1"></i>Товары</a></li>
+            <li class="nav-item"><a class="nav-link" data-nav="movements" href="#/movements"><i class="bi bi-arrow-left-right me-1"></i>Движения</a></li>
+            <li class="nav-item"><a class="nav-link" data-nav="documents" href="#/documents"><i class="bi bi-file-earmark-text me-1"></i>Документы</a></li>
+            <li class="nav-item"><a class="nav-link" data-nav="directories" href="#/directories"><i class="bi bi-bookshelf me-1"></i>Справочники</a></li>
+        </ul>
+
+        <div class="d-flex align-items-center gap-2">
+            <span id="operatorLabel" class="small text-body-secondary"></span>
+            <button type="button" class="btn btn-outline-secondary border-0"
+                    id="themeToggle" aria-label="Переключить тему">
+                <i class="bi bi-moon-stars" id="themeIcon"></i>
+            </button>
+            <a class="btn btn-outline-secondary btn-sm" href="#/settings" title="Настройки">
+                <i class="bi bi-gear"></i>
+            </a>
+        </div>
+    </nav>
+
+    <main class="container-fluid px-3 px-lg-4 py-3 app-main">
+        {% block content %}{% endblock %}
+    </main>
+
+    <!-- Контейнер уведомлений интерфейса (нативные Bootstrap Toast) -->
+    <div id="toastHost" class="toast-container position-fixed top-0 end-0 p-3"></div>
+
+    <!-- Модальное окно подтверждения PIN-кодом (для подписи документов) -->
+    <div class="modal" id="pinModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content rounded-4">
+                <div class="modal-header">
+                    <h6 class="modal-title"><i class="bi bi-shield-lock me-2"></i>Подтверждение оператора</h6>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <label class="form-label" for="pinInput">PIN-код оператора</label>
+                    <input type="password" class="form-control" id="pinInput" inputmode="numeric" autocomplete="off">
+                    <div class="text-danger small mt-2 d-none" id="pinError">Неверный PIN-код</div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Отмена</button>
+                    <button type="button" class="btn btn-primary" id="pinSubmit">Подтвердить</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

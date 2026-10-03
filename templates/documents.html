@@ -1,0 +1,64 @@
+{% extends "base.html" %}
+{% block title %}Документы{% endblock %}
+
+{% block content %}
+<div class="d-flex align-items-center justify-content-between mb-3 flex-wrap gap-2">
+    <h4 class="mb-0"><i class="bi bi-file-earmark-text me-2"></i>Документы</h4>
+    <a class="btn btn-primary" href="#/documents/new"><i class="bi bi-plus-lg me-1"></i>Оформить документ</a>
+</div>
+
+<div class="card shadow-sm mb-3">
+    <div class="card-body py-2">
+        <div class="row g-2 align-items-end">
+            <div class="col-lg-3">
+                <label class="form-label small text-body-secondary mb-0" for="docTypeFilter">Тип документа</label>
+                <select class="form-select" id="docTypeFilter">
+                    <option value="">Все типы</option>
+                    <option value="incoming" {% if filters.docType == 'incoming' %}selected{% endif %}>Приходная накладная</option>
+                    <option value="outgoing" {% if filters.docType == 'outgoing' %}selected{% endif %}>Расходная накладная</option>
+                    <option value="write_off" {% if filters.docType == 'write_off' %}selected{% endif %}>Акт списания</option>
+                    <option value="inventory" {% if filters.docType == 'inventory' %}selected{% endif %}>Акт инвентаризации</option>
+                </select>
+            </div>
+
+            <div class="col-lg-5">
+                <label class="form-label small text-body-secondary mb-0">Отчёт по обороту за период</label>
+                <div class="input-group">
+                    <input type="date" class="form-control" id="reportFrom" value="{{ period.from }}">
+                    <input type="date" class="form-control" id="reportTo" value="{{ period.to }}">
+                    <button class="btn btn-outline-primary" type="button" id="reportBtn">
+                        <i class="bi bi-file-earmark-pdf me-1"></i>PDF
+                    </button>
+                </div>
+            </div>
+
+            <div class="col-lg-4 text-lg-end small text-body-secondary">
+                PDF формируется в приложении и сохраняется через системный диалог сохранения
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="card shadow-sm">
+    <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0">
+            <thead>
+                <tr>
+                    <th>Номер</th>
+                    <th>Тип</th>
+                    <th>Дата</th>
+                    <th>Контрагент</th>
+                    <th>Ответственный</th>
+                    <th class="text-end">Позиций</th>
+                    <th>PDF</th>
+                    <th class="text-end text-nowrap">Действия</th>
+                </tr>
+            </thead>
+            <tbody id="documentsBody">
+                <tr><td colspan="8" class="text-center text-body-secondary py-4">Загрузка…</td></tr>
+            </tbody>
+        </table>
+    </div>
+    <div class="card-footer bg-transparent small text-body-secondary" id="documentsCount"></div>
+</div>
+{% endblock %}

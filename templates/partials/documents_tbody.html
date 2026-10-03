@@ -1,0 +1,35 @@
+{% for d in documents %}
+<tr>
+    <td>
+        <a href="#/documents/{{ d.id }}" class="fw-semibold text-decoration-none">{{ d.number }}</a>
+    </td>
+    <td>
+        <span class="badge text-bg-{{ {'incoming': 'success', 'outgoing': 'primary', 'write_off': 'danger', 'inventory': 'secondary'}[d.doc_type] or 'secondary' }}">
+            {{ {'incoming': 'Приход', 'outgoing': 'Расход', 'write_off': 'Списание', 'inventory': 'Инвентаризация'}[d.doc_type] or d.doc_type }}
+        </span>
+    </td>
+    <td class="text-nowrap">{{ d.doc_date }}</td>
+    <td>{{ d.counterparty_name or '—' }}</td>
+    <td class="small">{{ d.responsible or '—' }}</td>
+    <td class="text-end">{{ 'снимок' if d.doc_type == 'inventory' else d.items_count }}</td>
+    <td>
+        {% if d.pdf_path %}
+        <i class="bi bi-file-earmark-check text-success" title="PDF сохранён"></i>
+        <span class="small text-body-secondary ms-1">есть</span>
+        {% else %}
+        <span class="small text-body-secondary">не сформирован</span>
+        {% endif %}
+    </td>
+    <td class="text-end text-nowrap">
+        <a class="btn btn-sm btn-outline-secondary" href="#/documents/{{ d.id }}" title="Открыть">
+            <i class="bi bi-eye"></i>
+        </a>
+        <button type="button" class="btn btn-sm btn-outline-danger" data-action="pdf" data-id="{{ d.id }}"
+                data-number="{{ d.number }}" title="Сформировать PDF">
+            <i class="bi bi-file-earmark-pdf"></i>
+        </button>
+    </td>
+</tr>
+{% else %}
+<tr><td colspan="8" class="text-center text-body-secondary py-4">Документов нет</td></tr>
+{% endfor %}

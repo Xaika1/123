@@ -1,0 +1,75 @@
+{% extends "base.html" %}
+{% block title %}Журнал движений{% endblock %}
+
+{% block content %}
+<div class="d-flex align-items-center justify-content-between mb-3 flex-wrap gap-2">
+    <h4 class="mb-0"><i class="bi bi-arrow-left-right me-2"></i>Журнал движений товара</h4>
+    <div class="small text-body-secondary">каждый приход, расход и списание — с привязкой к документу</div>
+</div>
+
+<div class="card shadow-sm mb-3">
+    <div class="card-body py-2">
+        <div class="row g-2 align-items-end">
+            <div class="col-lg-2">
+                <label class="form-label small text-body-secondary mb-0" for="dateFrom">Дата с</label>
+                <input type="date" class="form-control" id="dateFrom" value="{{ filters.dateFrom }}">
+            </div>
+            <div class="col-lg-2">
+                <label class="form-label small text-body-secondary mb-0" for="dateTo">Дата по</label>
+                <input type="date" class="form-control" id="dateTo" value="{{ filters.dateTo }}">
+            </div>
+            <div class="col-lg-3">
+                <label class="form-label small text-body-secondary mb-0" for="typeFilter">Тип операции</label>
+                <select class="form-select" id="typeFilter">
+                    <option value="">Все операции</option>
+                    <option value="in" {% if filters.type == 'in' %}selected{% endif %}>Приход</option>
+                    <option value="out" {% if filters.type == 'out' %}selected{% endif %}>Расход</option>
+                    <option value="write_off" {% if filters.type == 'write_off' %}selected{% endif %}>Списание</option>
+                </select>
+            </div>
+            <div class="col-lg-3">
+                <label class="form-label small text-body-secondary mb-0" for="productFilter">Товар</label>
+                <select class="form-select" id="productFilter">
+                    <option value="">Все товары</option>
+                    {% for p in products %}
+                    <option value="{{ p.id }}" {% if filters.productId == p.id %}selected{% endif %}>
+                        {{ p.name }} ({{ p.article }})
+                    </option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-lg-2">
+                <button type="button" class="btn btn-outline-secondary w-100" id="resetFilters">
+                    <i class="bi bi-x-lg me-1"></i>Сбросить
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="card shadow-sm">
+    <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0">
+            <thead>
+                <tr>
+                    <th>Дата и время</th>
+                    <th>Документ</th>
+                    <th>Товар</th>
+                    <th>Операция</th>
+                    <th class="text-end">Кол-во</th>
+                    <th class="text-end">Цена</th>
+                    <th class="text-end">Сумма</th>
+                    <th>Комментарий</th>
+                </tr>
+            </thead>
+            <tbody id="movementsBody">
+                <tr><td colspan="8" class="text-center text-body-secondary py-4">Загрузка…</td></tr>
+            </tbody>
+        </table>
+    </div>
+    <div class="card-footer bg-transparent d-flex justify-content-between small text-body-secondary">
+        <span id="movementsCount"></span>
+        <span id="movementsTotals"></span>
+    </div>
+</div>
+{% endblock %}

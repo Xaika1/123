@@ -1,0 +1,42 @@
+{% for p in products %}
+<tr class="{% if p.is_low %}table-danger{% endif %}{% if not p.is_active %} opacity-50{% endif %}">
+    <td>
+        {% if p.image_url %}
+        <img src="{{ p.image_url }}" alt="" width="40" height="40"
+             class="rounded border object-fit-cover">
+        {% else %}
+        <span class="d-inline-flex align-items-center justify-content-center bg-body-secondary rounded p-2">
+            <i class="bi bi-image text-body-secondary"></i>
+        </span>
+        {% endif %}
+    </td>
+    <td><a href="#/products/{{ p.id }}" class="fw-semibold text-decoration-none">{{ p.article }}</a></td>
+    <td>
+        {{ p.name }}
+        {% if not p.is_active %}<span class="badge text-bg-secondary ms-1">архив</span>{% endif %}
+        {% if p.is_low %}<span class="badge text-bg-danger ms-1">минимум</span>{% endif %}
+        <div class="small text-body-secondary">{{ p.unit_name or '' }}</div>
+    </td>
+    <td>{{ p.category_name or '—' }}</td>
+    <td class="text-end fw-semibold">{{ p.current_stock }}</td>
+    <td class="text-end">{{ p.price | round(2) }}</td>
+    <td class="small text-body-secondary">{{ p.location or '—' }}</td>
+    <td class="small text-body-secondary">{{ p.receipt or '—' }}</td>
+    <td class="text-end text-nowrap">
+        <a class="btn btn-sm btn-outline-secondary" href="#/products/{{ p.id }}/edit" title="Редактировать">
+            <i class="bi bi-pencil"></i>
+        </a>
+        <button type="button" class="btn btn-sm btn-outline-secondary" data-action="archive"
+                data-id="{{ p.id }}" data-archived="{{ p.is_active }}"
+                title="{{ 'В архив' if p.is_active else 'Вернуть из архива' }}">
+            <i class="bi {{ 'bi-box-arrow-in-down' if p.is_active else 'bi-arrow-counterclockwise' }}"></i>
+        </button>
+        <button type="button" class="btn btn-sm btn-outline-danger" data-action="delete"
+                data-id="{{ p.id }}" data-name="{{ p.name }}" title="Удалить">
+            <i class="bi bi-trash"></i>
+        </button>
+    </td>
+</tr>
+{% else %}
+<tr><td colspan="9" class="text-center text-body-secondary py-4">Товары не найдены</td></tr>
+{% endfor %}

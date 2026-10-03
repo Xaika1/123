@@ -1,0 +1,109 @@
+{% extends "base.html" %}
+{% block title %}{{ document.number }}{% endblock %}
+
+{% block content %}
+<div class="d-flex align-items-center justify-content-between mb-3 flex-wrap gap-2">
+    <h4 class="mb-0">
+        <a class="text-body-secondary text-decoration-none me-2" href="#/documents"><i class="bi bi-arrow-left"></i></a>
+        {{ document.number }}
+        <span class="badge text-bg-{{ {'incoming': 'success', 'outgoing': 'primary', 'write_off': 'danger', 'inventory': 'secondary'}[document.doc_type] or 'secondary'}} ms-2">
+            {{ {'incoming': 'Приходная накладная', 'outgoing': 'Расходная накладная', 'write_off': 'Акт списания', 'inventory': 'Акт инвентаризации'}[document.doc_type] or document.doc_type }}
+        </span>
+    </h4>
+    <div class="btn-group">
+        <button type="button" class="btn btn-primary" id="makePdfBtn">
+            <i class="bi bi-file-earmark-pdf me-1"></i>{{ 'Пересформировать PDF' if document.pdf_path else 'Сформировать PDF' }}
+        </button>
+        <button type="button" class="btn btn-outline-primary {% if not document.pdf_path %}d-none{% endif %}" id="openPdfBtn">
+            <i class="bi bi-box-arrow-up-right me-1"></i>Открыть PDF
+        </button>
+    </div>
+</div>
+
+<div class="row g-3">
+    <div class="col-lg-4">
+        <div class="card shadow-sm">
+            <div class="card-header bg-transparent">Реквизиты</div>
+            <div class="card-body">
+                <dl class="row mb-0">
+                    <dt class="col-5 text-body-secondary">Дата</dt>
+                    <dd class="col-7">{{ document.doc_date }}</dd>
+
+                    <dt class="col-5 text-body-secondary">Контрагент</dt>
+                    <dd class="col-7">{{ document.counterparty_name or '—' }}</dd>
+
+                    <dt class="col-5 text-body-secondary">Ответственный</dt>
+                    <dd class="col-7">{{ document.responsible or '—' }}</dd>
+
+                    <dt class="col-5 text-body-secondary">Создан</dt>
+                    <dd class="col-7 small">{{ document.created_at }}</dd>
+
+                    <dt class="col-5 text-body-secondary">PDF</dt>
+                    <dd class="col-7 small text-break">{{ document.pdf_path or 'не сформирован' }}</dd>
+                </dl>
+                {% if document.comment %}
+                <hr>
+                <div class="small text-body-secondary">Комментарий</div>
+                <div>{{ document.comment }}</div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-8">
+        <div class="card shadow-sm">
+            <div class="card-header bg-transparent">
+                {{ 'Позиции (по текущим остаткам)' if document.doc_type == 'inventory' else 'Позиции документа' }}
+            </div>
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead>
+                        <tr>
+                            <th>Артикул</th>
+                            <th>Наименование</th>
+                            <th>Операция</th>
+                            <th class="text-end">Кол-во</th>
+                            <th class="text-end">Цена</th>
+                            <th class="text-end">Сумма</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    {% for item in document.items %}
+                        <tr>
+                            <td><a href="#/products/{{ item.product_id }}" class="text-decoration-none">{{ item.article }}</a></td>
+                            <td>{{ item.name }}</td>
+                            <td>
+                                <span class="badge text-bg-{{ 'success' if item.movement_type == 'in' else ('warning' if item.movement_type == 'out' else 'danger') }}">
+                                    {{ {'in': 'Приход', 'out': 'Расход', 'write_off': 'Списание'}[item.movement_type] or item.movement_type }}
+                                </span>
+                            </td>
+                            <td class="text-end fw-semibold">{{ item.quantity }} {{ item.unit_short or '' }}</td>
+                            <td class="text-end">{{ item.price_at_moment | round(2) }}</td>
+                            <td class="text-end">{{ item.sum | round(2) }}</td>
+                        </tr>
+                    {% else %}
+                        <tr>
+                            <td colspan="6" class="text-center text-body-secondary py-4">
+                                {% if document.doc_type == 'inventory' %}
+                                Позиции определяются текущими остатками склада
+                                {% else %}
+                                Позиции отсутствуют
+                                {% endif %}
+                            </td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                    {% if document.items %}
+                    <tfoot>
+                        <tr>
+                            <th colspan="5" class="text-end">Итого:</th>
+                            <th class="text-end">{{ document.total | round(2) }}</th>
+                        </tr>
+                    </tfoot>
+                    {% endif %}
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,120 @@
+{% extends "base.html" %}
+{% block title %}{{ 'Новый товар' if isNew else 'Редактирование товара' }}{% endblock %}
+
+{% block content %}
+<div class="d-flex align-items-center justify-content-between mb-3">
+    <h4 class="mb-0">
+        <a class="text-body-secondary text-decoration-none me-2" href="#/products"><i class="bi bi-arrow-left"></i></a>
+        {{ 'Новый товар' if isNew else 'Редактирование товара' }}
+    </h4>
+</div>
+
+<form id="productForm" class="card shadow-sm">
+    <div class="card-body">
+        <div class="row g-3">
+            <div class="col-lg-8">
+                <div class="row g-3">
+                    <div class="col-md-4">
+                        <label class="form-label" for="article">Артикул (SKU) *</label>
+                        <input type="text" class="form-control" id="article" name="article" required maxlength="50"
+                               value="{{ product.article if product }}" placeholder="напр. BLT-M8-050">
+                    </div>
+                    <div class="col-md-8">
+                        <label class="form-label" for="name">Наименование *</label>
+                        <input type="text" class="form-control" id="name" name="name" required maxlength="200"
+                               value="{{ product.name if product }}" placeholder="напр. Болт М8х50 оцинкованный">
+                    </div>
+
+                    <div class="col-md-6">
+                        <label class="form-label" for="categoryId">Категория</label>
+                        <select class="form-select" id="categoryId" name="category_id">
+                            <option value="">— без категории —</option>
+                            {% for c in categories %}
+                            <option value="{{ c.id }}" {% if product and product.category_id == c.id %}selected{% endif %}>
+                                {{ c.name }}
+                            </option>
+                            {% endfor %}
+                        </select>
+                        <div class="form-text">Новую категорию можно создать в разделе «Справочники».</div>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label" for="unitId">Единица измерения *</label>
+                        <select class="form-select" id="unitId" name="unit_id" required>
+                            <option value="">— выберите —</option>
+                            {% for u in units %}
+                            <option value="{{ u.id }}" {% if product and product.unit_id == u.id %}selected{% endif %}>
+                                {{ u.name }} ({{ u.short_name }})
+                            </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <div class="col-md-3">
+                        <label class="form-label" for="currentStock">Текущий остаток</label>
+                        <input type="number" class="form-control" id="currentStock" name="current_stock" min="0" step="1"
+                               value="{{ product.current_stock if product else 0 }}">
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label" for="minStock">Мин. остаток</label>
+                        <input type="number" class="form-control" id="minStock" name="min_stock" min="0" step="1"
+                               value="{{ product.min_stock if product else 0 }}">
+                        <div class="form-text">0 — уведомления отключены</div>
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label" for="price">Цена, руб.</label>
+                        <input type="number" class="form-control" id="price" name="price" min="0" step="0.01"
+                               value="{{ product.price if product else 0 }}">
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label" for="location">Место хранения</label>
+                        <input type="text" class="form-control" id="location" name="location" maxlength="100"
+                               value="{{ product.location if product }}" placeholder="Стеллаж А-1, полка 2">
+                    </div>
+
+                    <div class="col-12">
+                        <label class="form-label" for="description">Описание</label>
+                        <textarea class="form-control" id="description" name="description" rows="3">{{ product.description if product }}</textarea>
+                    </div>
+
+                    <div class="col-12">
+                        <div class="form-check form-switch">
+                            <input class="form-check-input" type="checkbox" id="isActive" name="is_active"
+                                   {% if not product or product.is_active %}checked{% endif %}>
+                            <label class="form-check-label" for="isActive">Активен (продаётся/учитывается)</label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-lg-4">
+                <label class="form-label">Фотография товара</label>
+                <div class="border rounded-3 p-2 text-center bg-body-secondary" id="imageBox">
+                    <div id="imagePlaceholder" class="py-5 text-body-secondary{{ ' d-none' if product and product.image_url }}">
+                        <i class="bi bi-image fs-1"></i>
+                        <div class="small mt-2">Изображение не выбрано</div>
+                    </div>
+                    <img src="{{ product.image_url or '' }}" id="imagePreview" alt=""
+                         class="img-fluid rounded{{ ' d-none' if not (product and product.image_url) }}">
+                </div>
+                <input type="hidden" id="imagePath" name="image_path" value="{{ product.image_path if product }}">
+                <div class="d-grid gap-2 mt-2">
+                    <button type="button" class="btn btn-outline-primary" id="pickImage">
+                        <i class="bi bi-folder2-open me-1"></i>Выбрать файл
+                    </button>
+                    <button type="button" class="btn btn-outline-secondary" id="clearImage">
+                        <i class="bi bi-x-lg me-1"></i>Убрать изображение
+                    </button>
+                </div>
+                <div class="form-text" id="imagePathLabel">{{ product.image_path if product else '' }}</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card-footer bg-transparent d-flex justify-content-end gap-2">
+        <a class="btn btn-outline-secondary" href="#/products">Отмена</a>
+        <button type="submit" class="btn btn-primary">
+            <i class="bi bi-check-lg me-1"></i>{{ 'Создать товар' if isNew else 'Сохранить изменения' }}
+        </button>
+    </div>
+</form>
+{% endblock %}

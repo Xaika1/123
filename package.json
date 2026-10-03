@@ -1,0 +1,53 @@
+{
+  "name": "warehouse-accounting",
+  "productName": "Складской учёт",
+  "version": "1.0.0",
+  "description": "Desktop-приложение складского учёта на Electron + SQLite",
+  "main": "electron/main.js",
+  "scripts": {
+    "build": "node build/precompile.js && vite build",
+    "precompile": "node build/precompile.js",
+    "start": "npm run build && electron .",
+    "smoke": "electron . --smoke-test",
+    "dev": "node build/precompile.js && vite --host 127.0.0.1 --port 4173",
+    "dist": "npm run build && electron-builder --win portable"
+  },
+  "dependencies": {
+    "better-sqlite3": "^13.0.3",
+    "jspdf": "^4.2.1",
+    "nunjucks": "^3.2.4"
+  },
+  "devDependencies": {
+    "electron": "^35.7.5",
+    "electron-builder": "^26.15.3",
+    "vite": "^8.3.2"
+  },
+  "build": {
+    "appId": "com.xaika1.warehouse",
+    "productName": "Складской учёт",
+    "artifactName": "SkladUchet-${version}-portable.${ext}",
+    "directories": {
+      "output": "release"
+    },
+    "files": [
+      "dist/**/*",
+      "electron/**/*",
+      "resources/**/*",
+      "package.json"
+    ],
+    "asarUnpack": [
+      "**/node_modules/better-sqlite3/**"
+    ],
+    "npmRebuild": false,
+    "electronDist": "node_modules/electron/dist",
+    "win": {
+      "icon": "resources/icon.ico",
+      "target": [
+        {
+          "target": "portable",
+          "arch": ["x64"]
+        }
+      ]
+    }
+  }
+}
